@@ -32,11 +32,11 @@ var cosmosDBDataContributorRoleID = '00000000-0000-0000-0000-000000000002' //Cos
 
 //Reference existing resources for permission assignment scope
 resource r_rawDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' existing = {
-  name: rawDataLakeAccountName
+  name: take(rawDataLakeAccountName, 24)
 }
 
 resource r_curatedDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' existing = {
-  name: curatedDataLakeAccountName
+  name: take(curatedDataLakeAccountName,24)
 }
 
 resource r_azureMLWorkspace 'Microsoft.MachineLearningServices/workspaces@2021-07-01' existing = {

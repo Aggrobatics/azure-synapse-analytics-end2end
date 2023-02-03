@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "networkIsolationMode": {
+      "value": "vNet"
+    },
+    "uniqueSuffix": {
+      "value": null
+    },
+    "ctrlNewOrExistingVNet": {
+      "value": "new"
+    },
+    "existingVNetResourceGroupName": {
+      "value": null
+    },
+    "vNetName": {
+      "value": null 
+    },
+    "vNetIPAddressPrefixes": {
+      "value": [
+        "10.1.0.0/16"
+      ]
+    },
+    "vNetSubnetName": {
+      "value": "default"
+    },
+    "vNetSubnetIPAddressPrefix": {
+      "value": "10.1.0.0/24"
+    },
+    "ctrlDeployPurview": {
+      "value": false
+    },
+    "ctrlDeployAI": {
+      "value": true
+    },
+    "ctrlDeployStreaming": {
+      "value": false
+    },
+    "ctrlDeployDataShare": {
+      "value": false
+    },
+    "ctrlDeployPrivateDNSZones": {
+      "value": false
+    },
+    "ctrlDeployOperationalDB": {
+      "value": false
+    },
+    "ctrlDeployCosmosDB": {
+      "value": false
+    },
+    "ctrlDeploySampleArtifacts": {
+      "value": false
+    }
+  }
+}

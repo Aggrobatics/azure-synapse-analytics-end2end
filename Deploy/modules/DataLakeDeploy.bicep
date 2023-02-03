@@ -11,8 +11,8 @@ param dataShareResourceID string
 param streamAnalyticsJobResourceID string
 param purviewAccountResourceID string
 param azureMLWorkspaceResourceID string
-param anomalyDetectorAccountResourceID string
-param languageServiceAccountResourceID string
+// param anomalyDetectorAccountResourceID string
+// param languageServiceAccountResourceID string
 param iotHubResourceID string
 param ctrlDeployStreaming bool 
 
@@ -58,19 +58,19 @@ var azureMLAccessRule = (azureMLWorkspaceResourceID == '') ? [] : [
   }
 ]
 
-var anomalyDetectorAccessRule = (anomalyDetectorAccountResourceID == '') ? [] : [
-  {
-    tenantId: subscription().tenantId
-    resourceId: anomalyDetectorAccountResourceID
-  }
-]
+// var anomalyDetectorAccessRule = (anomalyDetectorAccountResourceID == '') ? [] : [
+//   {
+//     tenantId: subscription().tenantId
+//     resourceId: anomalyDetectorAccountResourceID
+//   }
+// ]
 
-var languageServiceAccessRule = (languageServiceAccountResourceID == '') ? [] : [
-  {
-    tenantId: subscription().tenantId
-    resourceId: languageServiceAccountResourceID
-  }
-]
+// var languageServiceAccessRule = (languageServiceAccountResourceID == '') ? [] : [
+//   {
+//     tenantId: subscription().tenantId
+//     resourceId: languageServiceAccountResourceID
+//   }
+// ]
 
 var iotHubAccessRule = (iotHubResourceID == '') ? [] : [
   {
@@ -79,11 +79,11 @@ var iotHubAccessRule = (iotHubResourceID == '') ? [] : [
   }
 ]
 
-var dataLakeresourceAccessRules = union(synapseAccessRule, dataShareAccessRule, streamAnalyticsJobAccessRule, purviewAccessRule, azureMLAccessRule, anomalyDetectorAccessRule, languageServiceAccessRule, iotHubAccessRule)
+var dataLakeresourceAccessRules = union(synapseAccessRule, dataShareAccessRule, streamAnalyticsJobAccessRule, purviewAccessRule, azureMLAccessRule, iotHubAccessRule/*, anomalyDetectorAccessRule, languageServiceAccessRule*/)
 
 //Raw Data Lake Storage Account
 resource r_rawDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: rawDataLakeAccountName
+  name: take(rawDataLakeAccountName, 24)
   location: resourceLocation
   properties:{
     isHnsEnabled: true
@@ -104,7 +104,7 @@ resource r_rawDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-02-
 
 //Curated Data Lake Storage Account
 resource r_curatedDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: curatedDataLakeAccountName
+  name: take(curatedDataLakeAccountName, 24)
   location: resourceLocation
   properties:{
     isHnsEnabled: true
@@ -125,11 +125,11 @@ resource r_curatedDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021
 
 //Data Lake zone containers
 resource r_rawDataLakeZoneContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = [for containerName in rawDataLakeZoneContainerNames: {
-  name:'${r_rawDataLakeStorageAccount.name}/default/${containerName}'
+  name:'${take(r_rawDataLakeStorageAccount.name, 24)}/default/${containerName}'
 }]
 
 resource r_curatedDataLakeZoneContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = [for containerName in curatedDataLakeZoneContainerNames: {
-  name:'${r_curatedDataLakeStorageAccount.name}/default/${containerName}'
+  name:'${take(r_curatedDataLakeStorageAccount.name, 24)}/default/${containerName}'
 }]
 
 output rawDataLakeStorageAccountID string = r_rawDataLakeStorageAccount.id

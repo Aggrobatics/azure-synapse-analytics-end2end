@@ -57,15 +57,15 @@ module m_KeyVaultPurviewAccessPolicy 'KeyVaultPurviewAccessPolicy.bicep' = if (c
   }
 }
 
-resource r_textAnalytics 'Microsoft.CognitiveServices/accounts@2021-10-01' existing = {
-  name: textAnalyticsAccountName
-}
+// resource r_textAnalytics 'Microsoft.CognitiveServices/accounts@2021-10-01' existing = if(ctrlDeployAI == true) {
+//   name: textAnalyticsAccountName
+// }
 
-resource r_anomalyDetector 'Microsoft.CognitiveServices/accounts@2021-10-01' existing = {
-  name: anomalyDetectorAccountName
-}
+// resource r_anomalyDetector 'Microsoft.CognitiveServices/accounts@2021-10-01' existing = if(ctrlDeployAI == true) {
+//   name: anomalyDetectorAccountName
+// }
 
-resource r_cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-11-15-preview' existing = {
+resource r_cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-11-15-preview' existing = if(ctrlDeployCosmosDB) {
   name: cosmosDBAccountName
 }
 
@@ -74,21 +74,21 @@ resource r_keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' existing = {
   name: keyVaultName
 }
 
-resource r_textAnalyticsAccountKey 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = if(ctrlDeployAI == true) {
-  name:'${textAnalyticsAccountName}-Key'
-  parent: r_keyVault
-  properties:{
-    value:  ctrlDeployAI ? listKeys(r_textAnalytics.id, r_textAnalytics.apiVersion).key1 : ''
-  }
-}
+// resource r_textAnalyticsAccountKey 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = if(ctrlDeployAI == true) {
+//   name:'${textAnalyticsAccountName}-Key'
+//   parent: r_keyVault
+//   properties:{
+//     value:  ctrlDeployAI ? listKeys(r_textAnalytics.id, r_textAnalytics.apiVersion).key1 : ''
+//   }
+// }
 
-resource r_anomalyDetectorAccountKey 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = if(ctrlDeployAI == true) {
-  name:'${anomalyDetectorAccountName}-Key'
-  parent: r_keyVault
-  properties:{
-    value: ctrlDeployAI ? listKeys(r_anomalyDetector.id, r_anomalyDetector.apiVersion).key1 : ''
-  }
-}
+// resource r_anomalyDetectorAccountKey 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = if(ctrlDeployAI == true) {
+//   name:'${anomalyDetectorAccountName}-Key'
+//   parent: r_keyVault
+//   properties:{
+//     value: ctrlDeployAI ? listKeys(r_anomalyDetector.id, r_anomalyDetector.apiVersion).key1 : ''
+//   }
+// }
 
 resource r_cosmosDBConnectionString 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = if(ctrlDeployCosmosDB == true) {
   name:'${cosmosDBAccountName}-Key'
@@ -112,7 +112,7 @@ resource r_synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' existing =
 }
 
 //Azure Machine Learning Datastores
-resource r_azureMLWorkspace 'Microsoft.MachineLearningServices/workspaces@2021-07-01' existing = {
+resource r_azureMLWorkspace 'Microsoft.MachineLearningServices/workspaces@2021-07-01' existing = if(ctrlDeployAI == true) {
   name: azureMLWorkspaceName
 
   //Raw Data Lake Datastores
@@ -173,7 +173,7 @@ resource r_azureMLSynapseLinkedService 'Microsoft.MachineLearningServices/worksp
 }
 
 //Event Hub Capture
-resource r_eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' existing = {
+resource r_eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' existing = if(ctrlDeployStreaming == true) {
   name: eventHubNamespaceName
 
   resource r_eventHub 'eventhubs' = if(ctrlDeployStreaming == true && ctrlStreamIngestionService == 'eventhub') {

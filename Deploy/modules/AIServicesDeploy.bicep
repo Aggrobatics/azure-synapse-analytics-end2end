@@ -6,46 +6,46 @@ param azureMLStorageAccountName string
 param azureMLAppInsightsName string
 param azureMLContainerRegistryName string
 param keyVaultID string
-param textAnalyticsAccountName string
-param anomalyDetectorAccountName string
+// param textAnalyticsAccountName string
+// param anomalyDetectorAccountName string
 
 //Cognitive Services Account
-resource r_textAnalytics 'Microsoft.CognitiveServices/accounts@2017-04-18' = {
-  name: textAnalyticsAccountName
-  location: resourceLocation
-  kind: 'TextAnalytics'
-  sku:{
-    name: 'S'
-  }
-  identity:{
-    type: 'SystemAssigned'
-  }
-  properties:{
-    publicNetworkAccess: (networkIsolationMode == 'vNet') ? 'Disabled': 'Enabled'
-    customSubDomainName: textAnalyticsAccountName
-  }
-}
+// resource r_textAnalytics 'Microsoft.CognitiveServices/accounts@2017-04-18' = {
+//   name: textAnalyticsAccountName
+//   location: resourceLocation
+//   kind: 'TextAnalytics'
+//   sku:{
+//     name: 'S'
+//   }
+//   identity:{
+//     type: 'SystemAssigned'
+//   }
+//   properties:{
+//     publicNetworkAccess: (networkIsolationMode == 'vNet') ? 'Disabled': 'Enabled'
+//     customSubDomainName: textAnalyticsAccountName
+//   }
+// }
 
-//Anomaly Detector Account
-resource r_anomalyDetector 'Microsoft.CognitiveServices/accounts@2017-04-18' = {
-  name: anomalyDetectorAccountName
-  location: resourceLocation
-  kind: 'AnomalyDetector'
-  sku:{
-    name: 'S0'
-  }
-  identity:{
-    type: 'SystemAssigned'
-  }
-  properties:{
-    publicNetworkAccess: (networkIsolationMode == 'vNet') ? 'Disabled': 'Enabled'
-    customSubDomainName: anomalyDetectorAccountName
-  }  
-}
+// //Anomaly Detector Account
+// resource r_anomalyDetector 'Microsoft.CognitiveServices/accounts@2017-04-18' = {
+//   name: anomalyDetectorAccountName
+//   location: resourceLocation
+//   kind: 'AnomalyDetector'
+//   sku:{
+//     name: 'S0'
+//   }
+//   identity:{
+//     type: 'SystemAssigned'
+//   }
+//   properties:{
+//     publicNetworkAccess: (networkIsolationMode == 'vNet') ? 'Disabled': 'Enabled'
+//     customSubDomainName: anomalyDetectorAccountName
+//   }  
+// }
 
 //Azure ML Storage Account
 resource r_azureMLStorageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name:azureMLStorageAccountName
+  name: take(azureMLStorageAccountName, 24)
   location:resourceLocation
   kind:'StorageV2'
   sku:{
@@ -118,13 +118,13 @@ resource r_azureMLWorkspace 'Microsoft.MachineLearningServices/workspaces@2021-0
   }
 }
 
-output textAnalyticsAccountID string = r_textAnalytics.id
-output textAnalyticsAccountName string = r_textAnalytics.name
-output textAnalyticsEndpoint string = r_textAnalytics.properties.endpoint
+// output textAnalyticsAccountID string = r_textAnalytics.id
+// output textAnalyticsAccountName string = r_textAnalytics.name
+// output textAnalyticsEndpoint string = r_textAnalytics.properties.endpoint
 
-output anomalyDetectorAccountID string = r_anomalyDetector.id
-output anomalyDetectorAccountName string = r_anomalyDetector.name
-output anomalyDetectorEndpoint string = r_anomalyDetector.properties.endpoint
+// output anomalyDetectorAccountID string = r_anomalyDetector.id
+// output anomalyDetectorAccountName string = r_anomalyDetector.name
+// output anomalyDetectorEndpoint string = r_anomalyDetector.properties.endpoint
 
 output azureMLWorkspaceIdentityPrincipalID string = r_azureMLWorkspace.identity.principalId
 

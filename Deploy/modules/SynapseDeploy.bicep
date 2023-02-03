@@ -28,13 +28,14 @@ param synapseADXPoolMaxSize int
 
 param purviewAccountID string
 
+var dataLakeAccountName = take(workspaceDataLakeAccountName, 24)
 var storageEnvironmentDNS = environment().suffixes.storage
-var dataLakeStorageAccountUrl = 'https://${workspaceDataLakeAccountName}.dfs.${storageEnvironmentDNS}'
+var dataLakeStorageAccountUrl = 'https://${dataLakeAccountName}.dfs.${storageEnvironmentDNS}'
 var azureRBACStorageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' //Storage Blob Data Contributor Role
 
 //Data Lake Storage Account
 resource r_workspaceDataLakeAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: workspaceDataLakeAccountName
+  name: dataLakeAccountName
   location: resourceLocation
   properties:{
     isHnsEnabled: true
@@ -62,7 +63,7 @@ var privateContainerNames = [
 ]
 
 resource r_dataLakePrivateContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-02-01' = [for containerName in privateContainerNames: {
-  name:'${r_workspaceDataLakeAccount.name}/default/${containerName}'
+  name:'${take(r_workspaceDataLakeAccount.name, 24)}/default/${containerName}'
 }]
 
 //Synapse Workspace
@@ -85,9 +86,9 @@ resource r_synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
     managedVirtualNetworkSettings: (networkIsolationMode == 'vNet')? {
       preventDataExfiltration:true
     }: null
-    purviewConfiguration:{
+    purviewConfiguration: !empty(purviewAccountID) ? {
       purviewResourceId: purviewAccountID
-    }
+    }: null
   }
 
   //Dedicated SQL Pool

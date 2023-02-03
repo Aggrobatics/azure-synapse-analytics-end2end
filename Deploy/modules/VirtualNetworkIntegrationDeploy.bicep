@@ -45,11 +45,11 @@ param iotHubID string
 param iotHubName string
 
 //Congnitive Services Params
-param textAnalyticsAccountID string
-param textAnalyticsAccountName string
+// param textAnalyticsAccountID string
+// param textAnalyticsAccountName string
 
-param anomalyDetectorAccountID string
-param anomalyDetectorAccountName string
+// param anomalyDetectorAccountID string
+// param anomalyDetectorAccountName string
 
 //Azure ML Workspace Params
 param azureMLStorageAccountID string
@@ -529,52 +529,52 @@ module m_iotHubPrivateLink 'PrivateEndpoint.bicep' = if(ctrlDeployStreaming == t
 }
 
 //Private Link for Text Analytics
-module m_textAnalyticsPrivateLink './PrivateEndpoint.bicep' = if(ctrlDeployAI == true){
-  name: 'TextAnalyticsPrivateLink'
-  dependsOn:[
-    m_DeployPrivateDNSZones
-  ]
-  params: {
-    groupID: 'account'
-    privateEndpoitName: '${textAnalyticsAccountName}-account'
-    privateLinkServiceId: textAnalyticsAccountID
-    resourceLocation: resourceLocation
-    subnetID: subnetID
-    deployDNSZoneGroup: ctrlDeployPrivateDNSZones
-    privateDNSZoneConfigs:[
-      {
-        name:'privatelink-cognitiveservices-azure-com'
-        properties:{
-          privateDnsZoneId: r_privateDNSZoneCognitiveService.id
-        }
-      }
-    ]
-  }
-}
+// module m_textAnalyticsPrivateLink './PrivateEndpoint.bicep' = if(ctrlDeployAI == true){
+//   name: 'TextAnalyticsPrivateLink'
+//   dependsOn:[
+//     m_DeployPrivateDNSZones
+//   ]
+//   params: {
+//     groupID: 'account'
+//     privateEndpoitName: '${textAnalyticsAccountName}-account'
+//     privateLinkServiceId: textAnalyticsAccountID
+//     resourceLocation: resourceLocation
+//     subnetID: subnetID
+//     deployDNSZoneGroup: ctrlDeployPrivateDNSZones
+//     privateDNSZoneConfigs:[
+//       {
+//         name:'privatelink-cognitiveservices-azure-com'
+//         properties:{
+//           privateDnsZoneId: r_privateDNSZoneCognitiveService.id
+//         }
+//       }
+//     ]
+//   }
+// }
 
-//Private Link for Anomaly Detector
-module m_anomalyDetectorPrivateLink './PrivateEndpoint.bicep' = if(ctrlDeployAI == true){
-  name: 'AnomalyDetectorPrivateLink'
-  dependsOn:[
-    m_DeployPrivateDNSZones
-  ]
-  params: {
-    groupID: 'account'
-    privateEndpoitName: '${anomalyDetectorAccountName}-account'
-    privateLinkServiceId: anomalyDetectorAccountID
-    resourceLocation: resourceLocation
-    subnetID: subnetID
-    deployDNSZoneGroup: ctrlDeployPrivateDNSZones
-    privateDNSZoneConfigs:[
-      {
-        name:'privatelink-cognitiveservices-azure-com'
-        properties:{
-          privateDnsZoneId: r_privateDNSZoneCognitiveService.id
-        }
-      }
-    ]
-  }
-}
+// //Private Link for Anomaly Detector
+// module m_anomalyDetectorPrivateLink './PrivateEndpoint.bicep' = if(ctrlDeployAI == true){
+//   name: 'AnomalyDetectorPrivateLink'
+//   dependsOn:[
+//     m_DeployPrivateDNSZones
+//   ]
+//   params: {
+//     groupID: 'account'
+//     privateEndpoitName: '${anomalyDetectorAccountName}-account'
+//     privateLinkServiceId: anomalyDetectorAccountID
+//     resourceLocation: resourceLocation
+//     subnetID: subnetID
+//     deployDNSZoneGroup: ctrlDeployPrivateDNSZones
+//     privateDNSZoneConfigs:[
+//       {
+//         name:'privatelink-cognitiveservices-azure-com'
+//         properties:{
+//           privateDnsZoneId: r_privateDNSZoneCognitiveService.id
+//         }
+//       }
+//     ]
+//   }
+// }
 
 //Private Link for Storage Account Blob Service
 module m_dataLakeStorageAccountBlobPrivateLink './PrivateEndpoint.bicep' = if(ctrlDeployAI == true){

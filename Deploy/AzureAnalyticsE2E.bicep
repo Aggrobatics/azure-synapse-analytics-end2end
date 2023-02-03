@@ -7,23 +7,23 @@
   'vNet'
 ])
 @description('Network Isolation Mode')
-param networkIsolationMode string = 'default'
+param networkIsolationMode string = 'vNet'
 
 @description('Resource Location')
 param resourceLocation string = resourceGroup().location
 
 @description('Unique Suffix')
-param uniqueSuffix string = substring(uniqueString(resourceGroup().id),0,6)
+param uniqueSuffix string // substring(uniqueString(resourceGroup().id),0,6)
 
 //********************************************************
 // Workload Deployment Control Parameters
 //********************************************************
 
-param ctrlDeployPurview bool = true     //Controls the deployment of Azure Purview
+param ctrlDeployPurview bool = false     //Controls the deployment of Azure Purview
 param ctrlDeployAI bool = true     //Controls the deployment of Azure ML and Cognitive Services
-param ctrlDeployStreaming bool = true   //Controls the deployment of EventHubs and Stream Analytics
-param ctrlDeployDataShare bool = true   //Controls the deployment of Azure Data Share
-param ctrlDeployPrivateDNSZones bool = true //Controls the creation of private DNS zones for private links
+param ctrlDeployStreaming bool = false   //Controls the deployment of EventHubs and Stream Analytics
+param ctrlDeployDataShare bool = false   //Controls the deployment of Azure Data Share
+param ctrlDeployPrivateDNSZones bool = false //Controls the creation of private DNS zones for private links
 param ctrlDeployOperationalDB bool = false  ////Controls the creation of operational Azure database data sources
 param ctrlDeployCosmosDB bool = false //Controls the creation of CosmosDB if (ctrlDeployOperationalDBs == true)
 param ctrlDeploySampleArtifacts bool = false //Controls the creation of sample artifcats (SQL Scripts, Notebooks, Linked Services, Datasets, Dataflows, Pipelines) based on chosen template.
@@ -37,7 +37,7 @@ param sampleArtifactCollectionName string = 'OpenDatasets'
   'new'
   'existing'
 ])
-param ctrlNewOrExistingVNet string = 'new'
+param ctrlNewOrExistingVNet string = 'existing'
 
 @allowed([
   'eventhub'
@@ -71,7 +71,7 @@ param vNetSubnetIPAddressPrefix string = '10.1.0.0/24'
 
 //Data Lake Parameters
 @description('Synapse Workspace Data Lake Storage Account Name')
-param workspaceDataLakeAccountName string = 'azwksdatalake${uniqueSuffix}'
+param workspaceDataLakeAccountName string = take('azwksdatalake${uniqueSuffix}', 24)
 
 @description('Synapse Workspace Data Lake Storage Account Name')
 param rawDataLakeAccountName string = 'azrawdatalake${uniqueSuffix}'
@@ -106,7 +106,8 @@ param synapseWorkspaceName string = 'azsynapsewks${uniqueSuffix}'
 param synapseSqlAdminUserName string = 'azsynapseadmin'
 
 @description('SQL Admin User Password')
-param synapseSqlAdminPassword string
+@secure()
+param synapseSqlAdminPassword string = 'Password1'
 
 @description('Synapse Managed Resource Group Name')
 param synapseManagedRGName string = '${synapseWorkspaceName}-mrg'
@@ -340,12 +341,12 @@ module m_AIServicesDeploy 'modules/AIServicesDeploy.bicep' = if(ctrlDeployAI == 
     m_PlatformServicesDeploy
   ]
   params: {
-    anomalyDetectorAccountName: anomalyDetectorName
     azureMLAppInsightsName: azureMLAppInsightsName
     azureMLContainerRegistryName: azureMLContainerRegistryName
     azureMLStorageAccountName: azureMLStorageAccountName
     azureMLWorkspaceName: azureMLWorkspaceName
-    textAnalyticsAccountName: textAnalyticsAccountName
+    // anomalyDetectorAccountName: anomalyDetectorName
+    // textAnalyticsAccountName: textAnalyticsAccountName
     keyVaultID: m_PlatformServicesDeploy.outputs.keyVaultID
     resourceLocation: resourceLocation
     networkIsolationMode: networkIsolationMode
@@ -410,8 +411,8 @@ module m_DataLakeDeploy 'modules/DataLakeDeploy.bicep' = {
     streamAnalyticsJobResourceID: ctrlDeployStreaming ? m_StreamingServicesDeploy.outputs.streamAnalyticsJobID : ''
     synapseWorkspaceResourceID: m_SynapseDeploy.outputs.synapseWorkspaceID
     azureMLWorkspaceResourceID: ctrlDeployAI? m_AIServicesDeploy.outputs.azureMLWorkspaceID : ''
-    anomalyDetectorAccountResourceID: ctrlDeployAI? m_AIServicesDeploy.outputs.anomalyDetectorAccountID : ''
-    languageServiceAccountResourceID: ctrlDeployAI? m_AIServicesDeploy.outputs.textAnalyticsAccountID : ''
+    // anomalyDetectorAccountResourceID: ctrlDeployAI? m_AIServicesDeploy.outputs.anomalyDetectorAccountID : ''
+    // languageServiceAccountResourceID: ctrlDeployAI? m_AIServicesDeploy.outputs.textAnalyticsAccountID : ''
     ctrlDeployStreaming: ctrlDeployStreaming
     ctrlStreamIngestionService: ctrlStreamIngestionService
     iotHubResourceID: ctrlDeployStreaming ? m_StreamingServicesDeploy.outputs.iotHubID : ''
@@ -538,8 +539,8 @@ module m_VirtualNetworkIntegration 'modules/VirtualNetworkIntegrationDeploy.bice
     vNetName: vNetName
     subnetID: m_PlatformServicesDeploy.outputs.subnetID
     vNetID: m_PlatformServicesDeploy.outputs.vNetID
-    anomalyDetectorAccountID: ctrlDeployAI ? m_AIServicesDeploy.outputs.anomalyDetectorAccountID : ''
-    anomalyDetectorAccountName: ctrlDeployAI ? m_AIServicesDeploy.outputs.anomalyDetectorAccountName : ''
+    // anomalyDetectorAccountID: ctrlDeployAI ? m_AIServicesDeploy.outputs.anomalyDetectorAccountID : ''
+    // anomalyDetectorAccountName: ctrlDeployAI ? m_AIServicesDeploy.outputs.anomalyDetectorAccountName : ''
     azureMLContainerRegistryID: ctrlDeployAI ? m_AIServicesDeploy.outputs.containerRegistryID : ''
     azureMLContainerRegistryName: ctrlDeployAI ? m_AIServicesDeploy.outputs.containerRegistryName : ''
     azureMLStorageAccountID: ctrlDeployAI ? m_AIServicesDeploy.outputs.storageAccountID : ''
@@ -564,8 +565,8 @@ module m_VirtualNetworkIntegration 'modules/VirtualNetworkIntegrationDeploy.bice
     synapsePrivateLinkHubName: synapsePrivateLinkHubName
     synapseWorkspaceID: m_SynapseDeploy.outputs.synapseWorkspaceID
     synapseWorkspaceName: m_SynapseDeploy.outputs.synapseWorkspaceName
-    textAnalyticsAccountID: ctrlDeployAI ? m_AIServicesDeploy.outputs.textAnalyticsAccountID : ''
-    textAnalyticsAccountName: ctrlDeployAI ? m_AIServicesDeploy.outputs.textAnalyticsAccountName : ''
+    // textAnalyticsAccountID: ctrlDeployAI ? m_AIServicesDeploy.outputs.textAnalyticsAccountID : ''
+    // textAnalyticsAccountName: ctrlDeployAI ? m_AIServicesDeploy.outputs.textAnalyticsAccountName : ''
     workspaceDataLakeAccountID: m_SynapseDeploy.outputs.workspaceDataLakeAccountID
     workspaceDataLakeAccountName: m_SynapseDeploy.outputs.workspaceDataLakeAccountName
     cosmosDBAccountID: ctrlDeployOperationalDB && ctrlDeployCosmosDB ? m_OperationalDatabasesDeploy.outputs.cosmosDBAccountID : ''
@@ -587,14 +588,15 @@ var synapsePSScriptLocation = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0F6d
 
 var azMLSynapseLinkedServiceIdentityID = ctrlDeployAI ? '-AzMLSynapseLinkedServiceIdentityID ${m_ServiceConnectionsDeploy.outputs.azureMLSynapseLinkedServicePrincipalID}' : ''
 var azMLWorkspaceName = ctrlDeployAI ? '-AzMLWorkspaceName ${azureMLWorkspaceName}' : ''
-var azTextAnalyticsParams = ctrlDeployAI ? '-TextAnalyticsAccountID ${m_AIServicesDeploy.outputs.textAnalyticsAccountID} -TextAnalyticsAccountName ${textAnalyticsAccountName} -TextAnalyticsEndpoint ${m_AIServicesDeploy.outputs.textAnalyticsEndpoint}' : ''
+// var azTextAnalyticsParams = ctrlDeployAI ? '-TextAnalyticsAccountID ${m_AIServicesDeploy.outputs.textAnalyticsAccountID} -TextAnalyticsAccountName ${textAnalyticsAccountName} -TextAnalyticsEndpoint ${m_AIServicesDeploy.outputs.textAnalyticsEndpoint}' : ''
 var azCosmosDBParams = ctrlDeployCosmosDB ? '-CtrlDeployCosmosDB $${ctrlDeployCosmosDB} -CosmosDBAccountID ${m_OperationalDatabasesDeploy.outputs.cosmosDBAccountID} -CosmosDBAccountName ${m_OperationalDatabasesDeploy.outputs.cosmosDBAccountName} -CosmosDBDatabaseName ${m_OperationalDatabasesDeploy.outputs.cosmosDBDatabaseName}' : ''
-var azAnomalyDetectorParams = ctrlDeployAI ? '-AnomalyDetectorAccountID ${m_AIServicesDeploy.outputs.anomalyDetectorAccountID} -AnomalyDetectorAccountName ${anomalyDetectorName} -AnomalyDetectorEndpoint ${m_AIServicesDeploy.outputs.anomalyDetectorEndpoint}' : ''
+// var azAnomalyDetectorParams = ctrlDeployAI ? '-AnomalyDetectorAccountID ${m_AIServicesDeploy.outputs.anomalyDetectorAccountID} -AnomalyDetectorAccountName ${anomalyDetectorName} -AnomalyDetectorEndpoint ${m_AIServicesDeploy.outputs.anomalyDetectorEndpoint}' : ''
 var datalakeAccountSynapseParams = '-WorkspaceDataLakeAccountName ${workspaceDataLakeAccountName} -WorkspaceDataLakeAccountID ${m_SynapseDeploy.outputs.workspaceDataLakeAccountID} -RawDataLakeAccountName ${rawDataLakeAccountName} -RawDataLakeAccountID ${m_DataLakeDeploy.outputs.rawDataLakeStorageAccountID} -CuratedDataLakeAccountName ${curatedDataLakeAccountName} -CuratedDataLakeAccountID ${m_DataLakeDeploy.outputs.curatedDataLakeStorageAccountID}'
 var synapseWorkspaceParams = '-SynapseWorkspaceName ${synapseWorkspaceName} -SynapseWorkspaceID ${m_SynapseDeploy.outputs.synapseWorkspaceID}'
 var sampleArtifactsParams = ctrlDeploySampleArtifacts ? '-CtrlDeploySampleArtifacts $True -SampleArtifactCollectioName ${sampleArtifactCollectionName}' : ''
 
-var synapseScriptArguments = '-NetworkIsolationMode ${networkIsolationMode} -ctrlDeployAI $${ctrlDeployAI} -SubscriptionID ${subscription().subscriptionId} -ResourceGroupName ${resourceGroup().name} -ResourceGroupLocation ${resourceGroup().location} -UAMIIdentityID ${m_PlatformServicesDeploy.outputs.deploymentScriptUAMIPrincipalID} -KeyVaultName ${keyVaultName} -KeyVaultID ${m_PlatformServicesDeploy.outputs.keyVaultID} ${synapseWorkspaceParams} ${azMLSynapseLinkedServiceIdentityID} ${datalakeAccountSynapseParams} ${azMLWorkspaceName} ${azTextAnalyticsParams} ${azAnomalyDetectorParams} ${azCosmosDBParams} ${sampleArtifactsParams}'
+// var synapseScriptArguments = '-NetworkIsolationMode ${networkIsolationMode} -ctrlDeployAI $${ctrlDeployAI} -SubscriptionID ${subscription().subscriptionId} -ResourceGroupName ${resourceGroup().name} -ResourceGroupLocation ${resourceGroup().location} -UAMIIdentityID ${m_PlatformServicesDeploy.outputs.deploymentScriptUAMIPrincipalID} -KeyVaultName ${keyVaultName} -KeyVaultID ${m_PlatformServicesDeploy.outputs.keyVaultID} ${synapseWorkspaceParams} ${azMLSynapseLinkedServiceIdentityID} ${datalakeAccountSynapseParams} ${azMLWorkspaceName} ${azTextAnalyticsParams} ${azAnomalyDetectorParams} ${azCosmosDBParams} ${sampleArtifactsParams}'
+var synapseScriptArguments = '-NetworkIsolationMode ${networkIsolationMode} -ctrlDeployAI $${ctrlDeployAI} -SubscriptionID ${subscription().subscriptionId} -ResourceGroupName ${resourceGroup().name} -ResourceGroupLocation ${resourceGroup().location} -UAMIIdentityID ${m_PlatformServicesDeploy.outputs.deploymentScriptUAMIPrincipalID} -KeyVaultName ${keyVaultName} -KeyVaultID ${m_PlatformServicesDeploy.outputs.keyVaultID} ${synapseWorkspaceParams} ${azMLSynapseLinkedServiceIdentityID} ${datalakeAccountSynapseParams} ${azMLWorkspaceName} ${azCosmosDBParams} ${sampleArtifactsParams}'
 
 //Purview Deployment Script: script location encoded in Base64
 var purviewPSScriptLocation = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0F6dXJlL2F6dXJlLXN5bmFwc2UtYW5hbHl0aWNzLWVuZDJlbmQvbWFpbi9EZXBsb3kvc2NyaXB0cy9QdXJ2aWV3UG9zdERlcGxveS5wczE='

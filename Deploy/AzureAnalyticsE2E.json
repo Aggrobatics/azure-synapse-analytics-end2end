@@ -4,14 +4,14 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.8.9.13224",
-      "templateHash": "11573322489495583562"
+      "version": "0.14.6.61914",
+      "templateHash": "3824512060925979278"
     }
   },
   "parameters": {
     "networkIsolationMode": {
       "type": "string",
-      "defaultValue": "default",
+      "defaultValue": "vNet",
       "metadata": {
         "description": "Network Isolation Mode"
       },
@@ -29,14 +29,14 @@
     },
     "uniqueSuffix": {
       "type": "string",
-      "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, 6)]",
+      "defaultValue": "mstest230201",
       "metadata": {
         "description": "Unique Suffix"
       }
     },
     "ctrlDeployPurview": {
       "type": "bool",
-      "defaultValue": true
+      "defaultValue": false
     },
     "ctrlDeployAI": {
       "type": "bool",
@@ -44,19 +44,19 @@
     },
     "ctrlDeployStreaming": {
       "type": "bool",
-      "defaultValue": true
+      "defaultValue": false
     },
     "ctrlDeployDataShare": {
       "type": "bool",
-      "defaultValue": true
+      "defaultValue": false
     },
     "ctrlDeployPrivateDNSZones": {
       "type": "bool",
-      "defaultValue": true
+      "defaultValue": false
     },
     "ctrlDeployOperationalDB": {
       "type": "bool",
-      "defaultValue": false
+      "defaultValue": true
     },
     "ctrlDeployCosmosDB": {
       "type": "bool",
@@ -129,7 +129,7 @@
     },
     "workspaceDataLakeAccountName": {
       "type": "string",
-      "defaultValue": "[format('azwksdatalake{0}', parameters('uniqueSuffix'))]",
+      "defaultValue": "[take(format('azwksdatalake{0}', parameters('uniqueSuffix')), 24)]",
       "metadata": {
         "description": "Synapse Workspace Data Lake Storage Account Name"
       }
@@ -192,7 +192,7 @@
     },
     "synapseWorkspaceName": {
       "type": "string",
-      "defaultValue": "[format('azsynapsewks{0}', parameters('uniqueSuffix'))]",
+      "defaultValue": "[format('azsynapsewks{0}4', parameters('uniqueSuffix'))]",
       "metadata": {
         "description": "Synapse Workspace Name"
       }
@@ -205,7 +205,7 @@
       }
     },
     "synapseSqlAdminPassword": {
-      "type": "string",
+      "type": "securestring",
       "metadata": {
         "description": "SQL Admin User Password"
       }
@@ -529,8 +529,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "7599741937411823111"
+              "version": "0.14.6.61914",
+              "templateHash": "114894119198607189"
             }
           },
           "parameters": {
@@ -642,7 +642,7 @@
             },
             "deploymentScriptUAMIPrincipalID": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('deploymentScriptUAMIName'))).principalId]"
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('deploymentScriptUAMIName')), '2018-11-30').principalId]"
             },
             "vNetID": {
               "type": "string",
@@ -690,9 +690,7 @@
           "synapseDefaultContainerName": {
             "value": "[parameters('synapseDefaultContainerName')]"
           },
-          "purviewAccountID": {
-            "value": "[if(equals(parameters('ctrlDeployPurview'), true()), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value, '')]"
-          },
+          "purviewAccountID": "[if(equals(parameters('ctrlDeployPurview'), true()), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value), createObject('value', ''))]",
           "synapseDedicatedSQLPoolName": {
             "value": "[parameters('synapseDedicatedSQLPoolName')]"
           },
@@ -745,8 +743,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "18308825801895034742"
+              "version": "0.14.6.61914",
+              "templateHash": "13900876480874899963"
             }
           },
           "parameters": {
@@ -936,7 +934,7 @@
               },
               "properties": {
                 "enablePurge": false,
-                "workspaceUID": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName'))).workspaceUID]",
+                "workspaceUID": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName')), '2021-06-01').workspaceUID]",
                 "enableStreamingIngest": false,
                 "optimizedAutoscale": {
                   "isEnabled": "[parameters('synapseADXPoolEnableAutoScale')]",
@@ -1046,11 +1044,11 @@
             },
             "synapseSQLDedicatedEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName'))).connectivityEndpoints.sql]"
+              "value": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName')), '2021-06-01').connectivityEndpoints.sql]"
             },
             "synapseSQLServerlessEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName'))).connectivityEndpoints.sqlOnDemand]"
+              "value": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName')), '2021-06-01').connectivityEndpoints.sqlOnDemand]"
             },
             "synapseWorkspaceSparkID": {
               "type": "string",
@@ -1098,8 +1096,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "15222641485613678289"
+              "version": "0.14.6.61914",
+              "templateHash": "17814745449933875769"
             }
           },
           "parameters": {
@@ -1159,7 +1157,7 @@
             },
             "purviewScanEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewAccountName'))).endpoints.scan]"
+              "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewAccountName')), '2020-12-01-preview').endpoints.scan]"
             },
             "purviewAPIVersion": {
               "type": "string",
@@ -1167,11 +1165,11 @@
             },
             "purviewManagedStorageAccountID": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewAccountName'))).managedResources.storageAccount]"
+              "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewAccountName')), '2020-12-01-preview').managedResources.storageAccount]"
             },
             "purviewManagedEventHubNamespaceID": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewAccountName'))).managedResources.eventHubNamespace]"
+              "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewAccountName')), '2020-12-01-preview').managedResources.eventHubNamespace]"
             }
           }
         }
@@ -1207,7 +1205,7 @@
             "value": "[parameters('textAnalyticsAccountName')]"
           },
           "keyVaultID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.keyVaultID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.keyVaultID.value]"
           },
           "resourceLocation": {
             "value": "[parameters('resourceLocation')]"
@@ -1222,8 +1220,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "2438211100202623720"
+              "version": "0.14.6.61914",
+              "templateHash": "7868691921780438728"
             }
           },
           "parameters": {
@@ -1379,7 +1377,7 @@
             },
             "textAnalyticsEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('textAnalyticsAccountName'))).endpoint]"
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('textAnalyticsAccountName')), '2017-04-18').endpoint]"
             },
             "anomalyDetectorAccountID": {
               "type": "string",
@@ -1391,7 +1389,7 @@
             },
             "anomalyDetectorEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('anomalyDetectorAccountName'))).endpoint]"
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('anomalyDetectorAccountName')), '2017-04-18').endpoint]"
             },
             "azureMLWorkspaceIdentityPrincipalID": {
               "type": "string",
@@ -1453,9 +1451,7 @@
           "resourceLocation": {
             "value": "[parameters('resourceLocation')]"
           },
-          "purviewCatalogUri": {
-            "value": "[if(parameters('ctrlDeployPurview'), format('{0}.catalog.purview.azure.com', parameters('purviewAccountName')), '')]"
-          }
+          "purviewCatalogUri": "[if(parameters('ctrlDeployPurview'), createObject('value', format('{0}.catalog.purview.azure.com', parameters('purviewAccountName'))), createObject('value', ''))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1463,8 +1459,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "10310103780508015499"
+              "version": "0.14.6.61914",
+              "templateHash": "17985375084791831601"
             }
           },
           "parameters": {
@@ -1548,7 +1544,7 @@
             "value": "[parameters('networkIsolationMode')]"
           },
           "subNetID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.subnetID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.subnetID.value]"
           }
         },
         "template": {
@@ -1557,8 +1553,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "7654035620448420890"
+              "version": "0.14.6.61914",
+              "templateHash": "8391748685022056505"
             }
           },
           "parameters": {
@@ -1765,45 +1761,31 @@
           "rawDataLakeZoneContainerNames": {
             "value": "[variables('rawDataLakeZoneContainerNames')]"
           },
-          "dataShareResourceID": {
-            "value": "[if(parameters('ctrlDeployDataShare'), reference(resourceId('Microsoft.Resources/deployments', 'DataShareDeploy'), '2020-10-01').outputs.dataShareAccountID.value, '')]"
-          },
+          "dataShareResourceID": "[if(parameters('ctrlDeployDataShare'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'DataShareDeploy'), '2020-10-01').outputs.dataShareAccountID.value), createObject('value', ''))]",
           "networkIsolationMode": {
             "value": "[parameters('networkIsolationMode')]"
           },
-          "purviewAccountResourceID": {
-            "value": "[if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value, '')]"
-          },
+          "purviewAccountResourceID": "[if(parameters('ctrlDeployPurview'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value), createObject('value', ''))]",
           "rawDataLakeAccountName": {
             "value": "[parameters('rawDataLakeAccountName')]"
           },
           "resourceLocation": {
             "value": "[parameters('resourceLocation')]"
           },
-          "streamAnalyticsJobResourceID": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.streamAnalyticsJobID.value, '')]"
-          },
+          "streamAnalyticsJobResourceID": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.streamAnalyticsJobID.value), createObject('value', ''))]",
           "synapseWorkspaceResourceID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceID.value]"
           },
-          "azureMLWorkspaceResourceID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceID.value, '')]"
-          },
-          "anomalyDetectorAccountResourceID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountID.value, '')]"
-          },
-          "languageServiceAccountResourceID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountID.value, '')]"
-          },
+          "azureMLWorkspaceResourceID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceID.value), createObject('value', ''))]",
+          "anomalyDetectorAccountResourceID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountID.value), createObject('value', ''))]",
+          "languageServiceAccountResourceID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountID.value), createObject('value', ''))]",
           "ctrlDeployStreaming": {
             "value": "[parameters('ctrlDeployStreaming')]"
           },
           "ctrlStreamIngestionService": {
             "value": "[parameters('ctrlStreamIngestionService')]"
           },
-          "iotHubResourceID": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubID.value, '')]"
-          }
+          "iotHubResourceID": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubID.value), createObject('value', ''))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1811,8 +1793,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "4816476615030389851"
+              "version": "0.14.6.61914",
+              "templateHash": "9265797152956368421"
             }
           },
           "parameters": {
@@ -2000,7 +1982,7 @@
             "value": "[parameters('ctrlDeployCosmosDB')]"
           },
           "synapseWorkspaceID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceID.value]"
           }
         },
         "template": {
@@ -2009,8 +1991,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "7575776626793477949"
+              "version": "0.14.6.61914",
+              "templateHash": "4122804691346486974"
             }
           },
           "parameters": {
@@ -2142,22 +2124,18 @@
             "value": "[parameters('ctrlDeploySynapseSparkPool')]"
           },
           "keyVaultName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.keyVaultName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.keyVaultName.value]"
           },
-          "purviewIdentityPrincipalID": {
-            "value": "[if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewIdentityPrincipalID.value, '')]"
-          },
+          "purviewIdentityPrincipalID": "[if(parameters('ctrlDeployPurview'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewIdentityPrincipalID.value), createObject('value', ''))]",
           "synapseWorkspaceIdentityPrincipalID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceIdentityPrincipalID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceIdentityPrincipalID.value]"
           },
-          "azureMLWorkspaceName": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceName.value, parameters('azureMLWorkspaceName'))]"
-          },
+          "azureMLWorkspaceName": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceName.value), createObject('value', parameters('azureMLWorkspaceName')))]",
           "curatedDataLakeAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.curatedDataLakeStorageAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.curatedDataLakeStorageAccountName.value]"
           },
           "rawDataLakeAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.rawDataLakeStorageAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.rawDataLakeStorageAccountName.value]"
           },
           "curatedDataLakeZoneContainerNames": {
             "value": "[variables('curatedDataLakeZoneContainerNames')]"
@@ -2175,7 +2153,7 @@
             "value": "[parameters('eventHubPartitionCount')]"
           },
           "rawDataLakeAccountID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.rawDataLakeStorageAccountID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.rawDataLakeStorageAccountID.value]"
           },
           "anomalyDetectorAccountName": {
             "value": "[parameters('anomalyDetectorName')]"
@@ -2184,26 +2162,20 @@
             "value": "[parameters('resourceLocation')]"
           },
           "synapseWorkspaceID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceID.value]"
           },
           "synapseWorkspaceName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceName.value]"
           },
-          "synapseSparkPoolID": {
-            "value": "[if(parameters('ctrlDeploySynapseSparkPool'), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceSparkID.value, '')]"
-          },
-          "synapseSparkPoolName": {
-            "value": "[if(parameters('ctrlDeploySynapseSparkPool'), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceSparkName.value, parameters('synapseSparkPoolName'))]"
-          },
+          "synapseSparkPoolID": "[if(parameters('ctrlDeploySynapseSparkPool'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceSparkID.value), createObject('value', ''))]",
+          "synapseSparkPoolName": "[if(parameters('ctrlDeploySynapseSparkPool'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceSparkName.value), createObject('value', parameters('synapseSparkPoolName')))]",
           "textAnalyticsAccountName": {
             "value": "[parameters('textAnalyticsAccountName')]"
           },
           "uamiPrincipalID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.deploymentScriptUAMIPrincipalID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.deploymentScriptUAMIPrincipalID.value]"
           },
-          "cosmosDBAccountName": {
-            "value": "[if(parameters('ctrlDeployCosmosDB'), reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountName.value, '')]"
-          },
+          "cosmosDBAccountName": "[if(parameters('ctrlDeployCosmosDB'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountName.value), createObject('value', ''))]",
           "ctrlDeployCosmosDB": {
             "value": "[parameters('ctrlDeployCosmosDB')]"
           }
@@ -2214,8 +2186,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "6646085402436268932"
+              "version": "0.14.6.61914",
+              "templateHash": "15799062770138668196"
             }
           },
           "parameters": {
@@ -2316,11 +2288,11 @@
               }
             },
             {
-              "condition": "[equals(parameters('ctrlDeployAI'), true())]",
               "copy": {
                 "name": "r_azureMLRawDataLakeStores",
                 "count": "[length(parameters('rawDataLakeZoneContainerNames'))]"
               },
+              "condition": "[equals(parameters('ctrlDeployAI'), true())]",
               "type": "Microsoft.MachineLearningServices/workspaces/datastores",
               "apiVersion": "2021-03-01-preview",
               "name": "[format('{0}/{1}', parameters('azureMLWorkspaceName'), format('{0}_{1}', parameters('rawDataLakeAccountName'), parameters('rawDataLakeZoneContainerNames')[copyIndex()]))]",
@@ -2338,11 +2310,11 @@
               }
             },
             {
-              "condition": "[equals(parameters('ctrlDeployAI'), true())]",
               "copy": {
                 "name": "r_azureMLCuratedDataLakeStores",
                 "count": "[length(parameters('curatedDataLakeZoneContainerNames'))]"
               },
+              "condition": "[equals(parameters('ctrlDeployAI'), true())]",
               "type": "Microsoft.MachineLearningServices/workspaces/datastores",
               "apiVersion": "2021-03-01-preview",
               "name": "[format('{0}/{1}', parameters('azureMLWorkspaceName'), format('{0}_{1}', parameters('curatedDataLakeAccountName'), parameters('curatedDataLakeZoneContainerNames')[copyIndex()]))]",
@@ -2458,8 +2430,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "14030842359575945176"
+                      "version": "0.14.6.61914",
+                      "templateHash": "9721360824608955608"
                     }
                   },
                   "parameters": {
@@ -2518,8 +2490,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "10854483379795302803"
+                      "version": "0.14.6.61914",
+                      "templateHash": "15361929807542312416"
                     }
                   },
                   "parameters": {
@@ -2589,30 +2561,20 @@
           "ctrlDeployDataShare": {
             "value": "[parameters('ctrlDeployDataShare')]"
           },
-          "dataShareAccountPrincipalID": {
-            "value": "[if(parameters('ctrlDeployDataShare'), reference(resourceId('Microsoft.Resources/deployments', 'DataShareDeploy'), '2020-10-01').outputs.dataShareAccountPrincipalID.value, '')]"
-          },
+          "dataShareAccountPrincipalID": "[if(parameters('ctrlDeployDataShare'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'DataShareDeploy'), '2020-10-01').outputs.dataShareAccountPrincipalID.value), createObject('value', ''))]",
           "ctrlDeployStreaming": {
             "value": "[parameters('ctrlDeployStreaming')]"
           },
-          "streamAnalyticsIdentityPrincipalID": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.streamAnalyticsIdentityPrincipalID.value, '')]"
-          },
+          "streamAnalyticsIdentityPrincipalID": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.streamAnalyticsIdentityPrincipalID.value), createObject('value', ''))]",
           "ctrlDeployPurview": {
             "value": "[parameters('ctrlDeployPurview')]"
           },
-          "purviewIdentityPrincipalID": {
-            "value": "[if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewIdentityPrincipalID.value, '')]"
-          },
+          "purviewIdentityPrincipalID": "[if(parameters('ctrlDeployPurview'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewIdentityPrincipalID.value), createObject('value', ''))]",
           "ctrlDeployAI": {
             "value": "[parameters('ctrlDeployAI')]"
           },
-          "azureMLWorkspaceName": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceName.value, '')]"
-          },
-          "azureMLSynapseLinkedServicePrincipalID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'ServiceConnectionsDeploy')).outputs.azureMLSynapseLinkedServicePrincipalID.value, '')]"
-          },
+          "azureMLWorkspaceName": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceName.value), createObject('value', ''))]",
+          "azureMLSynapseLinkedServicePrincipalID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'ServiceConnectionsDeploy'), '2020-10-01').outputs.azureMLSynapseLinkedServicePrincipalID.value), createObject('value', ''))]",
           "curatedDataLakeAccountName": {
             "value": "[parameters('curatedDataLakeAccountName')]"
           },
@@ -2620,17 +2582,15 @@
             "value": "[parameters('rawDataLakeAccountName')]"
           },
           "synapseWorkspaceName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceName.value]"
           },
           "synapseWorkspaceIdentityPrincipalID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceIdentityPrincipalID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceIdentityPrincipalID.value]"
           },
           "UAMIPrincipalID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.deploymentScriptUAMIPrincipalID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.deploymentScriptUAMIPrincipalID.value]"
           },
-          "iotHubPrincipalID": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubPrincipalID.value, '')]"
-          },
+          "iotHubPrincipalID": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubPrincipalID.value), createObject('value', ''))]",
           "ctrlStreamingIngestionService": {
             "value": "[parameters('ctrlStreamIngestionService')]"
           },
@@ -2656,8 +2616,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "1650342505066769871"
+              "version": "0.14.6.61914",
+              "templateHash": "3962810565684873987"
             }
           },
           "parameters": {
@@ -2963,76 +2923,44 @@
             "value": "[parameters('vNetName')]"
           },
           "subnetID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.subnetID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.subnetID.value]"
           },
           "vNetID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.vNetID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.vNetID.value]"
           },
-          "anomalyDetectorAccountID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountID.value, '')]"
-          },
-          "anomalyDetectorAccountName": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountName.value, '')]"
-          },
-          "azureMLContainerRegistryID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.containerRegistryID.value, '')]"
-          },
-          "azureMLContainerRegistryName": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.containerRegistryName.value, '')]"
-          },
-          "azureMLStorageAccountID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.storageAccountID.value, '')]"
-          },
-          "azureMLStorageAccountName": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.storageAccountName.value, '')]"
-          },
-          "azureMLWorkspaceID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceID.value, '')]"
-          },
-          "azureMLWorkspaceName": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceName.value, '')]"
-          },
+          "anomalyDetectorAccountID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountID.value), createObject('value', ''))]",
+          "anomalyDetectorAccountName": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountName.value), createObject('value', ''))]",
+          "azureMLContainerRegistryID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.containerRegistryID.value), createObject('value', ''))]",
+          "azureMLContainerRegistryName": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.containerRegistryName.value), createObject('value', ''))]",
+          "azureMLStorageAccountID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.storageAccountID.value), createObject('value', ''))]",
+          "azureMLStorageAccountName": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.storageAccountName.value), createObject('value', ''))]",
+          "azureMLWorkspaceID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceID.value), createObject('value', ''))]",
+          "azureMLWorkspaceName": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.azureMLWorkspaceName.value), createObject('value', ''))]",
           "curatedDataLakeAccountID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.curatedDataLakeStorageAccountID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.curatedDataLakeStorageAccountID.value]"
           },
           "curatedDataLakeAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.curatedDataLakeStorageAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.curatedDataLakeStorageAccountName.value]"
           },
-          "eventHubNamespaceID": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.eventHubNamespaceID.value, '')]"
-          },
-          "eventHubNamespaceName": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.eventHubNamespaceName.value, '')]"
-          },
-          "iotHubID": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubID.value, '')]"
-          },
-          "iotHubName": {
-            "value": "[if(parameters('ctrlDeployStreaming'), reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubName.value, '')]"
-          },
+          "eventHubNamespaceID": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.eventHubNamespaceID.value), createObject('value', ''))]",
+          "eventHubNamespaceName": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.eventHubNamespaceName.value), createObject('value', ''))]",
+          "iotHubID": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubID.value), createObject('value', ''))]",
+          "iotHubName": "[if(parameters('ctrlDeployStreaming'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'StreamingServicesDeploy'), '2020-10-01').outputs.iotHubName.value), createObject('value', ''))]",
           "keyVaultID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.keyVaultID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.keyVaultID.value]"
           },
           "keyVaultName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.keyVaultName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.keyVaultName.value]"
           },
-          "purviewAccountID": {
-            "value": "[if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value, '')]"
-          },
-          "purviewAccountName": {
-            "value": "[if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountName.value, '')]"
-          },
-          "purviewManagedEventHubNamespaceID": {
-            "value": "[if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewManagedEventHubNamespaceID.value, '')]"
-          },
-          "purviewManagedStorageAccountID": {
-            "value": "[if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewManagedStorageAccountID.value, '')]"
-          },
+          "purviewAccountID": "[if(parameters('ctrlDeployPurview'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value), createObject('value', ''))]",
+          "purviewAccountName": "[if(parameters('ctrlDeployPurview'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountName.value), createObject('value', ''))]",
+          "purviewManagedEventHubNamespaceID": "[if(parameters('ctrlDeployPurview'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewManagedEventHubNamespaceID.value), createObject('value', ''))]",
+          "purviewManagedStorageAccountID": "[if(parameters('ctrlDeployPurview'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewManagedStorageAccountID.value), createObject('value', ''))]",
           "rawDataLakeAccountID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.rawDataLakeStorageAccountID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.rawDataLakeStorageAccountID.value]"
           },
           "rawDataLakeAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.rawDataLakeStorageAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.rawDataLakeStorageAccountName.value]"
           },
           "resourceLocation": {
             "value": "[parameters('resourceLocation')]"
@@ -3041,29 +2969,21 @@
             "value": "[parameters('synapsePrivateLinkHubName')]"
           },
           "synapseWorkspaceID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceID.value]"
           },
           "synapseWorkspaceName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceName.value]"
           },
-          "textAnalyticsAccountID": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountID.value, '')]"
-          },
-          "textAnalyticsAccountName": {
-            "value": "[if(parameters('ctrlDeployAI'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountName.value, '')]"
-          },
+          "textAnalyticsAccountID": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountID.value), createObject('value', ''))]",
+          "textAnalyticsAccountName": "[if(parameters('ctrlDeployAI'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountName.value), createObject('value', ''))]",
           "workspaceDataLakeAccountID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.workspaceDataLakeAccountID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.workspaceDataLakeAccountID.value]"
           },
           "workspaceDataLakeAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.workspaceDataLakeAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.workspaceDataLakeAccountName.value]"
           },
-          "cosmosDBAccountID": {
-            "value": "[if(and(parameters('ctrlDeployOperationalDB'), parameters('ctrlDeployCosmosDB')), reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountID.value, '')]"
-          },
-          "cosmosDBAccountName": {
-            "value": "[if(and(parameters('ctrlDeployOperationalDB'), parameters('ctrlDeployCosmosDB')), reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountName.value, '')]"
-          },
+          "cosmosDBAccountID": "[if(and(parameters('ctrlDeployOperationalDB'), parameters('ctrlDeployCosmosDB')), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountID.value), createObject('value', ''))]",
+          "cosmosDBAccountName": "[if(and(parameters('ctrlDeployOperationalDB'), parameters('ctrlDeployCosmosDB')), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountName.value), createObject('value', ''))]",
           "ctrlDeployCosmosDB": {
             "value": "[parameters('ctrlDeployCosmosDB')]"
           }
@@ -3074,8 +2994,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "16187985639388150071"
+              "version": "0.14.6.61914",
+              "templateHash": "8119637664692446707"
             }
           },
           "parameters": {
@@ -3249,8 +3169,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "12370010929167293301"
+                      "version": "0.14.6.61914",
+                      "templateHash": "8759913375969719689"
                     }
                   },
                   "parameters": {
@@ -3303,8 +3223,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3377,8 +3297,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3451,8 +3371,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3525,8 +3445,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3598,8 +3518,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3671,8 +3591,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3744,8 +3664,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3817,8 +3737,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3891,8 +3811,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -3965,8 +3885,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4039,8 +3959,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4113,8 +4033,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4187,8 +4107,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4261,8 +4181,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4335,8 +4255,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4409,8 +4329,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4483,8 +4403,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4557,8 +4477,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8397255416326998325"
+                              "version": "0.14.6.61914",
+                              "templateHash": "7510575005239598451"
                             }
                           },
                           "parameters": {
@@ -4608,7 +4528,7 @@
                   "outputs": {
                     "storageDFSPrivateDNSZoneID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneStorageDFS')).outputs.dnsZoneID.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneStorageDFS'), '2020-10-01').outputs.dnsZoneID.value]"
                     },
                     "storageBlobPrivateDNSZoneID": {
                       "type": "string",
@@ -4624,19 +4544,19 @@
                     },
                     "synapseSQLPrivateDNSZoneID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneSynapseSQL')).outputs.dnsZoneID.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneSynapseSQL'), '2020-10-01').outputs.dnsZoneID.value]"
                     },
                     "synapseDevPrivateDNSZoneID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneSynapseDev')).outputs.dnsZoneID.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneSynapseDev'), '2020-10-01').outputs.dnsZoneID.value]"
                     },
                     "synapseWebPrivateDNSZoneID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneSynapseWeb')).outputs.dnsZoneID.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneSynapseWeb'), '2020-10-01').outputs.dnsZoneID.value]"
                     },
                     "keyVaultPrivateDNSZoneID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneKeyVault')).outputs.dnsZoneID.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PrivateDNSZoneKeyVault'), '2020-10-01').outputs.dnsZoneID.value]"
                     },
                     "serviceBusPrivateDNSZoneID": {
                       "type": "string",
@@ -4723,8 +4643,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -4838,8 +4758,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -4953,8 +4873,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5068,8 +4988,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5184,8 +5104,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5299,8 +5219,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5414,8 +5334,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5529,8 +5449,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5645,8 +5565,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5761,8 +5681,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5877,8 +5797,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -5993,8 +5913,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6109,8 +6029,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6225,8 +6145,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6341,8 +6261,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6457,8 +6377,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6573,8 +6493,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6689,8 +6609,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6805,8 +6725,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -6921,8 +6841,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -7037,8 +6957,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -7159,8 +7079,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "17646422788804785287"
+                      "version": "0.14.6.61914",
+                      "templateHash": "7121011718927141853"
                     }
                   },
                   "parameters": {
@@ -7265,13 +7185,13 @@
             "value": "[parameters('deploymentDatetime')]"
           },
           "deploymentScriptUAMIId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.deploymentScriptUAMIID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.deploymentScriptUAMIID.value]"
           },
           "purviewPSScriptLocation": {
             "value": "[variables('purviewPSScriptLocation')]"
           },
           "purviewScriptArguments": {
-            "value": "[format('-PurviewAccountID {0} -PurviewAccountName {1} -SubscriptionID {2} -ResourceGroupName {3} -UAMIIdentityID {4} -ScanEndpoint {5} -APIVersion {6} -SynapseWorkspaceName {7} -SynapseWorkspaceIdentityID {8} -KeyVaultName {9} -KeyVaultID {10} {11} {12} -NetworkIsolationMode {13}', if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value, ''), parameters('purviewAccountName'), subscription().subscriptionId, resourceGroup().name, reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.deploymentScriptUAMIPrincipalID.value, if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewScanEndpoint.value, ''), if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAPIVersion.value, ''), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceName.value, reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceIdentityPrincipalID.value, parameters('keyVaultName'), reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.keyVaultID.value, variables('datalakeAccountPurviewParams'), if(parameters('ctrlDeployDataShare'), format('-DataShareIdentityID {0}', reference(resourceId('Microsoft.Resources/deployments', 'DataShareDeploy'), '2020-10-01').outputs.dataShareAccountPrincipalID.value), ''), parameters('networkIsolationMode'))]"
+            "value": "[format('-PurviewAccountID {0} -PurviewAccountName {1} -SubscriptionID {2} -ResourceGroupName {3} -UAMIIdentityID {4} -ScanEndpoint {5} -APIVersion {6} -SynapseWorkspaceName {7} -SynapseWorkspaceIdentityID {8} -KeyVaultName {9} -KeyVaultID {10} {11} {12} -NetworkIsolationMode {13}', if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAccountID.value, ''), parameters('purviewAccountName'), subscription().subscriptionId, resourceGroup().name, reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.deploymentScriptUAMIPrincipalID.value, if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewScanEndpoint.value, ''), if(parameters('ctrlDeployPurview'), reference(resourceId('Microsoft.Resources/deployments', 'PurviewDeploy'), '2020-10-01').outputs.purviewAPIVersion.value, ''), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceName.value, reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceIdentityPrincipalID.value, parameters('keyVaultName'), reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.keyVaultID.value, variables('datalakeAccountPurviewParams'), if(parameters('ctrlDeployDataShare'), format('-DataShareIdentityID {0}', reference(resourceId('Microsoft.Resources/deployments', 'DataShareDeploy'), '2020-10-01').outputs.dataShareAccountPrincipalID.value), ''), parameters('networkIsolationMode'))]"
           },
           "resourceLocation": {
             "value": "[parameters('resourceLocation')]"
@@ -7280,7 +7200,7 @@
             "value": "[variables('synapsePSScriptLocation')]"
           },
           "synapseScriptArguments": {
-            "value": "[format('-NetworkIsolationMode {0} -ctrlDeployAI ${1} -SubscriptionID {2} -ResourceGroupName {3} -ResourceGroupLocation {4} -UAMIIdentityID {5} -KeyVaultName {6} -KeyVaultID {7} {8} {9} {10} {11} {12} {13} {14} {15}', parameters('networkIsolationMode'), parameters('ctrlDeployAI'), subscription().subscriptionId, resourceGroup().name, resourceGroup().location, reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.deploymentScriptUAMIPrincipalID.value, parameters('keyVaultName'), reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy')).outputs.keyVaultID.value, format('-SynapseWorkspaceName {0} -SynapseWorkspaceID {1}', parameters('synapseWorkspaceName'), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.synapseWorkspaceID.value), if(parameters('ctrlDeployAI'), format('-AzMLSynapseLinkedServiceIdentityID {0}', reference(resourceId('Microsoft.Resources/deployments', 'ServiceConnectionsDeploy')).outputs.azureMLSynapseLinkedServicePrincipalID.value), ''), format('-WorkspaceDataLakeAccountName {0} -WorkspaceDataLakeAccountID {1} -RawDataLakeAccountName {2} -RawDataLakeAccountID {3} -CuratedDataLakeAccountName {4} -CuratedDataLakeAccountID {5}', parameters('workspaceDataLakeAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy')).outputs.workspaceDataLakeAccountID.value, parameters('rawDataLakeAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.rawDataLakeStorageAccountID.value, parameters('curatedDataLakeAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy')).outputs.curatedDataLakeStorageAccountID.value), variables('azMLWorkspaceName'), if(parameters('ctrlDeployAI'), format('-TextAnalyticsAccountID {0} -TextAnalyticsAccountName {1} -TextAnalyticsEndpoint {2}', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountID.value, parameters('textAnalyticsAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsEndpoint.value), ''), if(parameters('ctrlDeployAI'), format('-AnomalyDetectorAccountID {0} -AnomalyDetectorAccountName {1} -AnomalyDetectorEndpoint {2}', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountID.value, parameters('anomalyDetectorName'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorEndpoint.value), ''), if(parameters('ctrlDeployCosmosDB'), format('-CtrlDeployCosmosDB ${0} -CosmosDBAccountID {1} -CosmosDBAccountName {2} -CosmosDBDatabaseName {3}', parameters('ctrlDeployCosmosDB'), reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountID.value, reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountName.value, reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBDatabaseName.value), ''), variables('sampleArtifactsParams'))]"
+            "value": "[format('-NetworkIsolationMode {0} -ctrlDeployAI ${1} -SubscriptionID {2} -ResourceGroupName {3} -ResourceGroupLocation {4} -UAMIIdentityID {5} -KeyVaultName {6} -KeyVaultID {7} {8} {9} {10} {11} {12} {13} {14} {15}', parameters('networkIsolationMode'), parameters('ctrlDeployAI'), subscription().subscriptionId, resourceGroup().name, resourceGroup().location, reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.deploymentScriptUAMIPrincipalID.value, parameters('keyVaultName'), reference(resourceId('Microsoft.Resources/deployments', 'PlatformServicesDeploy'), '2020-10-01').outputs.keyVaultID.value, format('-SynapseWorkspaceName {0} -SynapseWorkspaceID {1}', parameters('synapseWorkspaceName'), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.synapseWorkspaceID.value), if(parameters('ctrlDeployAI'), format('-AzMLSynapseLinkedServiceIdentityID {0}', reference(resourceId('Microsoft.Resources/deployments', 'ServiceConnectionsDeploy'), '2020-10-01').outputs.azureMLSynapseLinkedServicePrincipalID.value), ''), format('-WorkspaceDataLakeAccountName {0} -WorkspaceDataLakeAccountID {1} -RawDataLakeAccountName {2} -RawDataLakeAccountID {3} -CuratedDataLakeAccountName {4} -CuratedDataLakeAccountID {5}', parameters('workspaceDataLakeAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'SynapseDeploy'), '2020-10-01').outputs.workspaceDataLakeAccountID.value, parameters('rawDataLakeAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.rawDataLakeStorageAccountID.value, parameters('curatedDataLakeAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'DataLakeDeploy'), '2020-10-01').outputs.curatedDataLakeStorageAccountID.value), variables('azMLWorkspaceName'), if(parameters('ctrlDeployAI'), format('-TextAnalyticsAccountID {0} -TextAnalyticsAccountName {1} -TextAnalyticsEndpoint {2}', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsAccountID.value, parameters('textAnalyticsAccountName'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.textAnalyticsEndpoint.value), ''), if(parameters('ctrlDeployAI'), format('-AnomalyDetectorAccountID {0} -AnomalyDetectorAccountName {1} -AnomalyDetectorEndpoint {2}', reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorAccountID.value, parameters('anomalyDetectorName'), reference(resourceId('Microsoft.Resources/deployments', 'AIServicesDeploy'), '2020-10-01').outputs.anomalyDetectorEndpoint.value), ''), if(parameters('ctrlDeployCosmosDB'), format('-CtrlDeployCosmosDB ${0} -CosmosDBAccountID {1} -CosmosDBAccountName {2} -CosmosDBDatabaseName {3}', parameters('ctrlDeployCosmosDB'), reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountID.value, reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBAccountName.value, reference(resourceId('Microsoft.Resources/deployments', 'OperationalDatabasesDeploy'), '2020-10-01').outputs.cosmosDBDatabaseName.value), ''), variables('sampleArtifactsParams'))]"
           }
         },
         "template": {
@@ -7289,8 +7209,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "5420510849331936377"
+              "version": "0.14.6.61914",
+              "templateHash": "14561973536063734283"
             }
           },
           "parameters": {
